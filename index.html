@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rainbow Madness</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  body {
+    transition: background-color 0.2s linear;
+  }
+
+  /* Styles for fake mobile popups */
+  .fake-popup {
+    position: absolute;
+    width: 180px;
+    height: 120px;
+    border: 3px solid black;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    font-family: sans-serif;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+  }
+
+  .fake-popup-header {
+    background-color: black;
+    color: white;
+    padding: 2px 5px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: default;
+  }
+
+  .fake-popup-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    transition: background-color 0.2s linear;
+  }
+
+  .close-btn {
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<script>
+const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+let colorIndex = 0;
+let clickCount = 0;
+let extraWindowsCreated = false;
+
+// Rainbow background flashing
+setInterval(() => {
+  document.body.style.backgroundColor = colors[colorIndex];
+  colorIndex = (colorIndex + 1) % colors.length;
+}, 200);
+
+// Detect if mobile
+const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+// Click handling
+document.body.addEventListener('click', () => {
+  clickCount++;
+  if (clickCount <= 10) {
+    alert("DONT DISTURB MY RAINBOW");
+  } else if (clickCount === 11) {
+    if (isMobile) {
+      createFakePopups(15);
+    } else {
+      createPopupWindows(12);
+    }
+  } else if (clickCount === 12 && !extraWindowsCreated) {
+    if (isMobile) {
+      createFakePopups(20);
+    } else {
+      createPopupWindows(25);
+    }
+    extraWindowsCreated = true;
+  }
+});
+
+// Desktop popup function
+function createPopupWindows(count) {
+  for (let i = 0; i < count; i++) {
+    let width = 200, height = 150;
+    let x = Math.random() * (screen.width - width);
+    let y = Math.random() * (screen.height - height);
+    let dx = (Math.random() * 4 + 2) * (Math.random() > 0.5 ? 1 : -1);
+    let dy = (Math.random() * 4 + 2) * (Math.random() > 0.5 ? 1 : -1);
+
+    let popup = window.open('', '', `width=${width},height=${height},left=${x},top=${y}`);
+    if (!popup) continue;
+
+    popup.document.write(`
+      <html><head>
+      <title>🌈</title>
+      <style>
+        body { margin:0; overflow:hidden; font-size:2em; display:flex; align-items:center; justify-content:center; transition: background-color 0.2s linear; }
+      </style>
+      </head>
+      <body>🌈</body>
+      </html>
+    `);
+
+    let colorIndexPopup = Math.floor(Math.random() * colors.length);
+    setInterval(() => {
+      if (!popup || popup.closed) return;
+      popup.document.body.style.backgroundColor = colors[colorIndexPopup];
+      colorIndexPopup = (colorIndexPopup + 1) % colors.length;
+    }, 200);
+
+    setInterval(() => {
+      if (!popup || popup.closed) return;
+      x += dx;
+      y += dy;
+      if (x <= 0 || x + width >= screen.width) dx = -dx;
+      if (y <= 0 || y + height >= screen.height) dy = -dy;
+      popup.moveTo(x, y);
+    }, 50);
+  }
+}
+
+// Mobile fake popup function
+function createFakePopups(count) {
+  for (let i = 0; i < count; i++) {
+    const popup = document.createElement('div');
+    popup.className = 'fake-popup';
+
+    // Title bar
+    const header = document.createElement('div');
+    header.className = 'fake-popup-header';
+    header.innerHTML = 'RAINBOW.APK <span class="close-btn">X</span>';
+    popup.appendChild(header);
+
+    // Body
+    const bodyDiv = document.createElement('div');
+    bodyDiv.className = 'fake-popup-body';
+    bodyDiv.innerText = '🌈';
+    popup.appendChild(bodyDiv);
+
+    // Random position
+    let width = 180, height = 120;
+    let x = Math.random() * (window.innerWidth - width);
+    let y = Math.random() * (window.innerHeight - height);
+    popup.style.left = x + 'px';
+    popup.style.top = y + 'px';
+
+    document.body.appendChild(popup);
+
+    // Bounce velocity
+    let dx = (Math.random() * 4 + 2) * (Math.random() > 0.5 ? 1 : -1);
+    let dy = (Math.random() * 4 + 2) * (Math.random() > 0.5 ? 1 : -1);
+
+    // Rainbow flashing
+    let colorIndexPopup = Math.floor(Math.random() * colors.length);
+    setInterval(() => {
+      bodyDiv.style.backgroundColor = colors[colorIndexPopup];
+      colorIndexPopup = (colorIndexPopup + 1) % colors.length;
+    }, 200);
+
+    // Bounce animation
+    setInterval(() => {
+      x += dx;
+      y += dy;
+      if (x <= 0 || x + width >= window.innerWidth) dx = -dx;
+      if (y <= 0 || y + height >= window.innerHeight) dy = -dy;
+      popup.style.left = x + 'px';
+      popup.style.top = y + 'px';
+    }, 50);
+
+    // Fake close button
+    header.querySelector('.close-btn').addEventListener('click', () => {
+      popup.remove();
+      // spawn 20 more popups
+      createFakePopups(20);
+    });
+  }
+}
+</script>
+
+</body>
+</html>
