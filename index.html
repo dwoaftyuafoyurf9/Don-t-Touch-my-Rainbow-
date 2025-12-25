@@ -28,6 +28,7 @@
     user-select: none;
     font-family: sans-serif;
     box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    z-index: 9999;
   }
 
   .fake-popup-header {
@@ -74,12 +75,21 @@ setInterval(() => {
 // Detect if mobile
 const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
+// Function to request fullscreen
+function goFullscreen() {
+  const el = document.documentElement;
+  if (el.requestFullscreen) el.requestFullscreen();
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  else if (el.msRequestFullscreen) el.msRequestFullscreen();
+}
+
 // Click handling
 document.body.addEventListener('click', () => {
   clickCount++;
   if (clickCount <= 10) {
     alert("DONT DISTURB MY RAINBOW");
   } else if (clickCount === 11) {
+    goFullscreen(); // enter fullscreen when popups start
     if (isMobile) {
       createFakePopups(15);
     } else {
@@ -187,7 +197,6 @@ function createFakePopups(count) {
     // Fake close button
     header.querySelector('.close-btn').addEventListener('click', () => {
       popup.remove();
-      // spawn 20 more popups
       createFakePopups(20);
     });
   }
