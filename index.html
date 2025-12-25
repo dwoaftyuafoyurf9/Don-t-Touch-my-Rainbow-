@@ -15,47 +15,6 @@
   body {
     transition: background-color 0.2s linear;
   }
-
-  /* Styles for fake mobile popups */
-  .fake-popup {
-    position: absolute;
-    width: 180px;
-    height: 120px;
-    border: 3px solid black;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    user-select: none;
-    font-family: sans-serif;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-    z-index: 9999;
-  }
-
-  .fake-popup-header {
-    background-color: black;
-    color: white;
-    padding: 2px 5px;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: default;
-  }
-
-  .fake-popup-body {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5em;
-    transition: background-color 0.2s linear;
-  }
-
-  .close-btn {
-    cursor: pointer;
-    color: red;
-    font-weight: bold;
-  }
 </style>
 </head>
 <body>
@@ -72,9 +31,6 @@ setInterval(() => {
   colorIndex = (colorIndex + 1) % colors.length;
 }, 200);
 
-// Detect if mobile
-const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-
 // Function to request fullscreen
 function goFullscreen() {
   const el = document.documentElement;
@@ -90,17 +46,9 @@ document.body.addEventListener('click', () => {
     alert("DONT DISTURB MY RAINBOW");
   } else if (clickCount === 11) {
     goFullscreen(); // enter fullscreen when popups start
-    if (isMobile) {
-      createFakePopups(15);
-    } else {
-      createPopupWindows(12);
-    }
+    createPopupWindows(12);
   } else if (clickCount === 12 && !extraWindowsCreated) {
-    if (isMobile) {
-      createFakePopups(20);
-    } else {
-      createPopupWindows(25);
-    }
+    createPopupWindows(25);
     extraWindowsCreated = true;
   }
 });
@@ -129,12 +77,14 @@ function createPopupWindows(count) {
     `);
 
     let colorIndexPopup = Math.floor(Math.random() * colors.length);
+    // Rainbow flashing
     setInterval(() => {
       if (!popup || popup.closed) return;
       popup.document.body.style.backgroundColor = colors[colorIndexPopup];
       colorIndexPopup = (colorIndexPopup + 1) % colors.length;
     }, 200);
 
+    // Bounce animation
     setInterval(() => {
       if (!popup || popup.closed) return;
       x += dx;
@@ -143,62 +93,6 @@ function createPopupWindows(count) {
       if (y <= 0 || y + height >= screen.height) dy = -dy;
       popup.moveTo(x, y);
     }, 50);
-  }
-}
-
-// Mobile fake popup function
-function createFakePopups(count) {
-  for (let i = 0; i < count; i++) {
-    const popup = document.createElement('div');
-    popup.className = 'fake-popup';
-
-    // Title bar
-    const header = document.createElement('div');
-    header.className = 'fake-popup-header';
-    header.innerHTML = 'RAINBOW.APK <span class="close-btn">X</span>';
-    popup.appendChild(header);
-
-    // Body
-    const bodyDiv = document.createElement('div');
-    bodyDiv.className = 'fake-popup-body';
-    bodyDiv.innerText = '🌈';
-    popup.appendChild(bodyDiv);
-
-    // Random position
-    let width = 180, height = 120;
-    let x = Math.random() * (window.innerWidth - width);
-    let y = Math.random() * (window.innerHeight - height);
-    popup.style.left = x + 'px';
-    popup.style.top = y + 'px';
-
-    document.body.appendChild(popup);
-
-    // Bounce velocity
-    let dx = (Math.random() * 4 + 2) * (Math.random() > 0.5 ? 1 : -1);
-    let dy = (Math.random() * 4 + 2) * (Math.random() > 0.5 ? 1 : -1);
-
-    // Rainbow flashing
-    let colorIndexPopup = Math.floor(Math.random() * colors.length);
-    setInterval(() => {
-      bodyDiv.style.backgroundColor = colors[colorIndexPopup];
-      colorIndexPopup = (colorIndexPopup + 1) % colors.length;
-    }, 200);
-
-    // Bounce animation
-    setInterval(() => {
-      x += dx;
-      y += dy;
-      if (x <= 0 || x + width >= window.innerWidth) dx = -dx;
-      if (y <= 0 || y + height >= window.innerHeight) dy = -dy;
-      popup.style.left = x + 'px';
-      popup.style.top = y + 'px';
-    }, 50);
-
-    // Fake close button
-    header.querySelector('.close-btn').addEventListener('click', () => {
-      popup.remove();
-      createFakePopups(20);
-    });
   }
 }
 </script>
